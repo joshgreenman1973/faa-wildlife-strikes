@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Struck — every reported wildlife strike on American aircraft since 1990</title>
+<meta name="description" content="352,419 wildlife strikes reported to the Federal Aviation Administration since 1990, by species, airport, altitude and what the crew wrote down.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="house.css">
+<style>
+:root{--ink3:#7d8c5c}
+.pane{display:none}.pane.on{display:block}
+#map{height:min(64vh,600px);width:100%;background:#e8e3d5}
+.leaflet-container{font-family:var(--sans);font-size:12px;background:#e8e3d5}
+.sp{padding:11px 26px;border-bottom:1px solid var(--hair);cursor:pointer;display:grid;
+  grid-template-columns:1fr auto;gap:10px 16px;align-items:baseline}
+.sp:hover{background:var(--paper2)}
+.sp .nm{font-family:var(--display);font-weight:600;font-size:1.02rem;letter-spacing:-.012em}
+.sp .mt{font-size:var(--t-micro);letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+  color:var(--ink2);margin-top:3px}
+.sp .ct{font-family:var(--display);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.sp .ct em{display:block;font-style:normal;font-size:var(--t-micro);letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink2);font-weight:700}
+.mo{display:flex;gap:2px;align-items:flex-end;height:20px;width:190px;margin-top:6px}
+.mo i{flex:1;background:var(--ink3);opacity:.85;min-height:1px}
+.mo-wrap{grid-column:1;display:flex;align-items:flex-end;gap:9px}
+.mo-lab{font-size:var(--t-micro);letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;color:var(--ink2);padding-bottom:2px}
+/* altitude column — the signature view */
+.alt{padding:20px 26px 30px;max-width:900px}
+.altrow{display:grid;grid-template-columns:92px 1fr 80px;gap:12px;align-items:center;padding:2px 0}
+.altrow span{font-size:var(--t-micro);letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+  color:var(--ink2);text-align:right;font-variant-numeric:tabular-nums}
+.altrow i{height:13px;display:block;background:var(--ink2c);mix-blend-mode:multiply;opacity:.85}
+.altrow u{text-decoration:none;font-family:var(--display);font-weight:600;font-size:.86rem;
+  font-variant-numeric:tabular-nums;color:var(--ink2)}
+.altnote{font-size:.95rem;color:#403a30;max-width:64ch;margin:0 0 18px;line-height:1.55}
+.rep{padding:12px 26px;border-bottom:1px solid var(--hair)}
+.rep .hd{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.rep .sp2{font-family:var(--display);font-weight:600;font-size:1.02rem}
+.rep .dt{font-size:var(--t-micro);letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink2)}
+.rep .mt{font-size:var(--t-micro);letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+  color:var(--ink2);margin-top:3px}
+.rep .rm{font-size:.96rem;line-height:1.5;margin-top:7px;color:#403a30;
+  border-left:3px solid var(--ink3);padding-left:11px}
+.badge{display:inline-block;padding:1px 7px;font-size:var(--t-micro);font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;background:var(--ink1);color:var(--paper);margin-left:7px}
+.loading{padding:34px 26px;color:var(--ink2)}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="strip">
+    <span>Federal Aviation Administration &middot; National Wildlife Strike Database</span>
+    <span id="range">Since 1990</span>
+  </div>
+
+  <div class="head">
+    <!-- mark: a flock on a rising line, and the one that did not clear -->
+    <div class="hmark" aria-hidden="true">
+      <svg viewBox="0 0 300 140">
+        <g stroke="#3f5d84" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".55">
+          <path d="M14 104 q10 -11 20 0"/><path d="M46 88 q10 -11 20 0"/>
+          <path d="M78 96 q10 -11 20 0"/><path d="M104 70 q10 -11 20 0"/>
+          <path d="M138 82 q10 -11 20 0"/><path d="M166 58 q10 -11 20 0"/>
+          <path d="M196 68 q10 -11 20 0"/><path d="M228 44 q10 -11 20 0"/>
+        </g>
+        <!-- flight path -->
+        <path d="M4 128 C 90 118, 190 74, 296 26" stroke="#7d8c5c" stroke-width="5"
+              fill="none" opacity=".5"/>
+        <!-- the impact -->
+        <g stroke="#b8503a" stroke-width="4.6" opacity=".9" stroke-linecap="round">
+          <path d="M252 40 l22 -16"/><path d="M252 40 l26 4"/><path d="M252 40 l14 22"/>
+          <path d="M252 40 l-8 -22"/><path d="M252 40 l-22 8"/>
+        </g>
+        <circle cx="252" cy="40" r="7" fill="#b8503a" opacity=".9"/>
+      </svg>
+    </div>
+    <h1>Struck</h1>
+    <p class="sub">Every wildlife strike on an American aircraft that someone bothered to report since
+      1990. Reporting is voluntary, so this is not everything that has been hit &mdash; it is everything
+      that got written down. When only a smear is left, the remains go to the Smithsonian's Feather
+      Identification Lab, which names the species from fragments. That is why a record can say
+      <b>Wilson's warbler at 32,000 feet</b>.</p>
+    <p class="src">Source: <a href="https://wildlife.faa.gov/" target="_blank" rel="noopener">FAA Wildlife Strike Database</a>
+      &middot; full export, rebuilt daily by FAA &middot; <a href="methodology.html">method</a></p>
+  </div>
+
+  <div class="counts" id="counts"></div>
+
+  <div class="tabs" id="tabs">
+    <button class="on" data-p="species">Species</button>
+    <button data-p="map">Airports</button>
+    <button data-p="alt">Altitude</button>
+    <button data-p="reports">The reports</button>
+  </div>
+
+  <!-- ============ species ============ -->
+  <div class="pane on" id="p-species">
+    <div class="controls">
+      <input id="q-sp" type="search" placeholder="Search species — try owl, deer, bat, alligator, vulture…" autocomplete="off">
+      <select id="sort-sp">
+        <option value="n">Most struck</option>
+        <option value="dmg">Most damaging</option>
+        <option value="rate">Highest damage rate</option>
+        <option value="high">Highest altitude</option>
+      </select>
+      <button class="chip" id="chip-nb" aria-pressed="false">Not birds</button>
+    </div>
+    <div class="colhead"><span>What hits aircraft</span><span id="c-sp"></span></div>
+    <div id="list-sp"></div>
+  </div>
+
+  <!-- ============ map ============ -->
+  <div class="pane" id="p-map">
+    <div class="controls">
+      <input id="q-ap" type="search" placeholder="Search airports…" autocomplete="off">
+      <select id="sort-ap"><option value="n">Most strikes</option><option value="dmg">Most damaging</option></select>
+    </div>
+    <div class="cols">
+      <div class="col"><div class="colhead"><span>Where strikes are reported</span><span id="c-map"></span></div><div id="map"></div></div>
+      <div class="col"><div class="colhead"><span>Airports</span><span id="c-ap"></span></div>
+        <div id="list-ap" style="max-height:min(64vh,600px);overflow:auto"></div></div>
+    </div>
+  </div>
+
+  <!-- ============ altitude ============ -->
+  <div class="pane" id="p-alt">
+    <div class="colhead"><span>Reported strike altitude above ground</span><span id="c-alt"></span></div>
+    <div class="alt">
+      <p class="altnote">Almost everything happens in the first 500 feet, on approach or the takeoff
+        roll. The tail of this distribution is the interesting part: strikes are on the record at
+        altitudes where nothing is supposed to be flying.</p>
+      <div id="altchart"></div>
+    </div>
+  </div>
+
+  <!-- ============ reports ============ -->
+  <div class="pane" id="p-reports">
+    <div class="controls">
+      <input id="q-rep" type="search" placeholder="Search the crews' own words — try nest, windshield, herd, smell…" autocomplete="off">
+      <select id="f-rep">
+        <option value="">All notable strikes</option>
+        <option value="dmg">Caused damage</option>
+        <option value="inj">Injured someone</option>
+        <option value="nb">Not a bird</option>
+      </select>
+    </div>
+    <div class="colhead"><span id="rep-scope">Reports with remarks</span><span id="c-rep"></span></div>
+    <div id="list-rep"><div class="loading">Loading the report file&hellip;</div></div>
+  </div>
+
+  <div class="foot">
+    <p class="caution">Built with AI assistance from FAA's own export. Reporting is voluntary and
+      counts are not a measure of risk at any airport. Remarks are quoted as filed, including typos.</p>
+    <p><a href="methodology.html">How this was built, and what it leaves out &rarr;</a></p>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf=n=>Number(n).toLocaleString('en-US');
+const MON=['J','F','M','A','M','J','J','A','S','O','N','D'];
+let META,AGG,SP,AP,NOTABLE=null,MAP,LAYER,NBSET=new Set();
+
+Promise.all([
+ fetch('data/meta.json').then(r=>r.json()),
+ fetch('data/agg.json').then(r=>r.json()),
+ fetch('data/species.json').then(r=>r.json()),
+ fetch('data/airports.json').then(r=>r.json()),
+]).then(([m,a,s,p])=>{META=m;AGG=a;SP=s;AP=p;s.forEach(x=>{if(x.nb)NBSET.add(x.n)});init();})
+ .catch(e=>{$('#list-sp').innerHTML='<div class="empty">Could not load data. '+esc(e.message)+'</div>';});
+
+function init(){
+  $('#range').textContent=META.date_min+' – '+META.date_max;
+  const nb=SP.filter(s=>s.nb);
+  $('#counts').innerHTML=[
+    [nf(META.records),'Strikes'],
+    [nf(META.species),'Species'],
+    [nf(META.damaging),'Damaging'],
+    [nf(META.airports),'Airports'],
+    [nf(nb.reduce((t,s)=>t+s.t,0)),'Not birds'],
+  ].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join('');
+
+  document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+    document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p));
+    if(b.dataset.p==='map'){ ensureMap(); }
+    if(b.dataset.p==='reports' && !NOTABLE) loadReports();
+  }));
+  $('#q-sp').addEventListener('input',renderSpecies);
+  $('#sort-sp').addEventListener('change',renderSpecies);
+  $('#chip-nb').addEventListener('click',e=>{
+    const on=e.target.getAttribute('aria-pressed')==='true';
+    e.target.setAttribute('aria-pressed',String(!on)); renderSpecies();
+  });
+  $('#q-ap').addEventListener('input',renderAirports);
+  $('#sort-ap').addEventListener('change',renderAirports);
+  renderSpecies(); renderAirports(); renderAltitude();
+}
+
+/* ---------- species ---------- */
+function renderSpecies(){
+  const q=$('#q-sp').value.toLowerCase().trim(), s=$('#sort-sp').value;
+  const nbOnly=$('#chip-nb').getAttribute('aria-pressed')==='true';
+  let rows=SP.filter(x=>(!nbOnly||x.nb) && (!q||x.n.toLowerCase().includes(q)));
+  rows=[...rows].sort((a,b)=>{
+    if(s==='dmg') return b.d-a.d;
+    if(s==='rate') return (b.d/b.t)-(a.d/a.t) || b.t-a.t;
+    if(s==='high') return (b.mx||0)-(a.mx||0);
+    return b.t-a.t;
+  });
+  $('#c-sp').textContent=nf(rows.length)+' of '+nf(SP.length);
+  $('#list-sp').innerHTML = rows.length? rows.slice(0,400).map(x=>{
+    const mx=Math.max(...x.mo)||1;
+    const bars=x.mo.map((v,i)=>`<i style="height:${Math.round(v/mx*100)}%" title="${MON[i]}: ${nf(v)}"></i>`).join('');
+    const bits=[x.sz||null, x.mh!=null?('median '+nf(x.mh)+' ft'):null,
+                x.mx?('highest '+nf(x.mx)+' ft'):null, x.d?(nf(x.d)+' damaging'):null,
+                x.nb?'not a bird':null].filter(Boolean).join(' · ');
+    const peak=MON[x.mo.indexOf(Math.max(...x.mo))];
+    const PK=['January','February','March','April','May','June','July','August','September','October','November','December'][x.mo.indexOf(Math.max(...x.mo))];
+    return `<div class="sp"><div><span class="nm">${esc(x.n)}</span><div class="mt">${esc(bits)}</div></div>
+      <div class="ct">${nf(x.t)}<em>strikes</em></div>
+      <div class="mo-wrap"><div class="mo">${bars}</div><div class="mo-lab">peaks in ${PK}</div></div></div>`;
+  }).join('') : '<div class="empty">No species matches that.</div>';
+}
+
+/* ---------- airports ---------- */
+function locatable(){ return AP.filter(a=>a.lat!=null && a.c!=='ZZZZ'); }
+function renderAirports(){
+  const q=$('#q-ap').value.toLowerCase().trim(), s=$('#sort-ap').value;
+  let rows=AP.filter(a=>a.c!=='ZZZZ' && (!q||(a.n+' '+a.c+' '+(a.s||'')).toLowerCase().includes(q)));
+  rows=[...rows].sort((a,b)=> s==='dmg' ? b.d-a.d : b.t-a.t);
+  $('#c-ap').textContent=nf(rows.length)+' airports';
+  $('#list-ap').innerHTML=rows.slice(0,300).map(a=>
+    `<div class="sp"><div><span class="nm">${esc(a.n)}</span>
+      <div class="mt">${esc(a.c)} ${a.s?'· '+esc(a.s):''} · top: ${esc((a.top[0]||['—'])[0])}</div></div>
+      <div class="ct">${nf(a.t)}<em>${nf(a.d)} damaging</em></div></div>`).join('');
+  if(MAP) drawMap(rows.filter(a=>a.lat!=null));
+}
+function ensureMap(){
+  if(MAP){ setTimeout(()=>MAP.invalidateSize(),60); return; }
+  MAP=L.map('map',{scrollWheelZoom:true}).setView([39.5,-98.5],4);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    maxZoom:14, attribution:'&copy; OpenStreetMap, &copy; CARTO'}).addTo(MAP);
+  LAYER=L.layerGroup().addTo(MAP);
+  drawMap(locatable());
+  setTimeout(()=>MAP.invalidateSize(),60);
+}
+function drawMap(rows){
+  if(!LAYER) return;
+  LAYER.clearLayers();
+  const max=Math.max(...rows.map(a=>a.t),1);
+  $('#c-map').textContent=nf(rows.length)+' located';
+  rows.slice(0,1500).forEach(a=>{
+    const r=Math.max(3,Math.sqrt(a.t/max)*22);
+    const m=L.circleMarker([a.lat,a.lon],{radius:r,color:'#221f1a',weight:.6,
+      fillColor:'#3f5d84',fillOpacity:.42});
+    m.bindTooltip(`<b>${esc(a.n)}</b><br>${nf(a.t)} strikes · ${nf(a.d)} damaging<br>Most struck: ${esc((a.top[0]||['—'])[0])}`,
+      {direction:'top'});
+    LAYER.addLayer(m);
+  });
+}
+
+/* ---------- altitude ---------- */
+function renderAltitude(){
+  const h=AGG.height, keys=Object.keys(h).map(Number).sort((a,b)=>a-b);
+  const max=Math.max(...keys.map(k=>h[k]));
+  const total=keys.reduce((t,k)=>t+h[k],0);
+  $('#c-alt').textContent=nf(total)+' strikes with a recorded height';
+  $('#altchart').innerHTML=keys.map(k=>{
+    const label = k<10000 ? nf(k)+'–'+nf(k+499) : nf(k)+'–'+nf(k+2499);
+    return `<div class="altrow"><span>${label} ft</span>
+      <i style="width:${Math.max(.4,h[k]/max*100)}%"></i><u>${nf(h[k])}</u></div>`;
+  }).join('');
+}
+
+/* ---------- reports ---------- */
+function loadReports(){
+  fetch('data/notable.json').then(r=>r.json()).then(d=>{
+    NOTABLE=d;
+    $('#rep-scope').textContent='Strikes that damaged, injured, cost money or were not birds';
+    $('#q-rep').addEventListener('input',renderReports);
+    $('#f-rep').addEventListener('change',renderReports);
+    renderReports();
+  }).catch(()=>{$('#list-rep').innerHTML='<div class="empty">Could not load the report file.</div>';});
+}
+function renderReports(){
+  const q=$('#q-rep').value.toLowerCase().trim(), f=$('#f-rep').value;
+  let rows=NOTABLE.filter(r=>{
+    if(f==='dmg' && !r.dmg) return false;
+    if(f==='inj' && !r.inj) return false;
+    if(f==='nb' && !NBSET.has(r.sp)) return false;
+    if(q && !((r.rem||'')+' '+(r.sp||'')+' '+(r.apn||'')+' '+(r.ac||'')).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  $('#c-rep').textContent=nf(rows.length)+' reports';
+  const show=rows.slice(0,300);
+  $('#list-rep').innerHTML=(rows.length?show.map(r=>`<div class="rep">
+    <div class="hd"><span class="sp2">${esc(r.sp||'Unidentified')}${r.dmg?'<span class="badge">Damage</span>':''}${r.inj?'<span class="badge">Injury</span>':''}</span>
+      <span class="dt">${esc(r.d||'')}</span></div>
+    <div class="mt">${esc([r.apn,r.st,r.ac,r.ph,(r.h!=null?nf(r.h)+' ft':null)].filter(Boolean).join(' · '))}</div>
+    ${r.rem?`<div class="rm">${esc(r.rem)}</div>`:''}</div>`).join('')
+    :'<div class="empty">Nothing matches that.</div>')
+    + (rows.length>show.length?`<div class="empty">Showing the first ${nf(show.length)} of ${nf(rows.length)}. Narrow the search to see more.</div>`:'');
+}
+</script>
+</body>
+</html>

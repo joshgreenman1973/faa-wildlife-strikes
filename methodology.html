@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How this was built — Struck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="house.css">
+<style>
+:root{--ink3:#7d8c5c}
+.doc{max-width:780px;padding:0 26px 70px}
+.doc h2{font-family:var(--display);font-size:1.1rem;font-weight:700;letter-spacing:-.01em;
+  margin:30px 0 9px;padding-bottom:6px;border-bottom:1px solid var(--hair)}
+.doc p{margin:0 0 13px;line-height:1.62}
+.doc ul{margin:0 0 13px;padding-left:20px}.doc li{margin-bottom:7px;line-height:1.55}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.85em;background:var(--paper2);padding:1px 5px}
+.back{font-size:var(--t-small);letter-spacing:.13em;text-transform:uppercase;font-weight:700;
+  color:var(--ink2);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="strip"><a class="back" href="index.html">&larr; Back to the database</a><span>Method</span></div>
+  <div class="head">
+    <h1>How this was built</h1>
+    <p class="sub">The source, the species problem, and the single most important caveat about
+      what these numbers mean.</p>
+  </div>
+  <div class="doc">
+
+    <h2>The source</h2>
+    <p>The FAA publishes its entire National Wildlife Strike Database as a downloadable file from
+      <a href="https://wildlife.faa.gov/" target="_blank" rel="noopener">wildlife.faa.gov</a>. This site
+      is built from the public Excel export at <code>/assets/database_excel.zip</code>, which FAA
+      rebuilds daily. The copy used here holds <strong>352,419 strike records</strong> dated January 2,
+      1990 through August 12, 2026, across 2,788 airports and 975 identified species.</p>
+    <p>When a strike leaves only fragments, the remains go to the Smithsonian Institution's Feather
+      Identification Lab, which identifies the species from feather material, blood or DNA and returns
+      it to FAA's database manager. The lab processes over ten thousand cases a year. That pipeline is
+      why the species column is as specific as it is.</p>
+
+    <h2>The caveat that governs everything else</h2>
+    <p>Strike reporting is <strong>voluntary</strong>. FAA says so on its own front page. This database
+      is not a census of strikes; it is a census of <em>reports</em>. An airport with a high count may
+      have a diligent reporting culture rather than more birds, and an airport with a low count may
+      simply not file. Nothing here supports a ranking of which airports are dangerous, and the rise
+      in annual counts since 1990 substantially reflects better reporting.</p>
+
+    <h2>Telling birds from everything else</h2>
+    <p>FAA records a species name but no clean animal-class field, so the "not birds" filter is derived
+      here. Naive keyword matching gets this badly wrong: <em>Killdeer</em> is a plover, not a deer, and
+      a <em>Western cattle egret</em> is not cattle. The classifier therefore matches mammal, reptile
+      and amphibian words only on whole-word boundaries, and then vetoes any match if the name also
+      contains a bird word, from a list of about 120 bird groups. That moved the non-bird total from an
+      initial, wrong 27,821 down to <strong>12,494</strong>.</p>
+    <p>It is still a derived tag on a name string, not a taxonomic authority. Treat it as a good search
+      filter and a poor statistic.</p>
+
+    <h2>What is shipped, and what is left in the source</h2>
+    <ul>
+      <li>Counts, species profiles, airport totals, monthly curves and the altitude distribution are
+        computed across all 352,419 records.</li>
+      <li>The report browser carries the <strong>notable</strong> subset: any strike that caused damage,
+        injured or killed someone, carried a recorded cost, or involved a non-bird. That is 36,735
+        records, and it is the only slice with free-text remarks attached, because shipping remarks for
+        all 352,419 would mean a download of well over 100 megabytes.</li>
+      <li>Remarks are truncated at 340 characters and quoted exactly as filed, including typos, all
+        caps and abbreviations. FAA redacts reporter names and titles in the public file; those appear
+        as <code>REDACTED</code> in the source and are not used here.</li>
+    </ul>
+
+    <h2>Airports</h2>
+    <p>The single largest "airport" in the raw file is <code>ZZZZ</code>, meaning unknown, with 47,738
+      strikes. It is excluded from the map and the airport list, and its records still count in every
+      species and altitude figure. Airport coordinates come from the file itself; 2,788 airports appear,
+      of which those with coordinates are mapped.</p>
+
+    <h2>Altitude</h2>
+    <p>Height is above ground level in feet, as reported, and is present on 174,766 of the records.
+      Bands are 500 feet up to 10,000 and 2,500 feet above that. The extreme tail is thin and worth
+      reading as individual reports rather than as a distribution: a handful of strikes are on record
+      above 25,000 feet.</p>
+
+    <h2>What this cannot tell you</h2>
+    <ul>
+      <li><strong>Risk.</strong> No flight-operations denominator is included, so nothing here is a
+        strike rate. FAA publishes rate analyses in its annual report.</li>
+      <li><strong>Cost totals.</strong> Cost fields are sparsely filled and inflation-adjusted by FAA
+        only in some columns. They are shown per record, never summed here.</li>
+      <li><strong>Anything about non-US aviation</strong>, beyond the foreign airports that appear when
+        a US operator files.</li>
+    </ul>
+
+    <h2>Rebuilding it</h2>
+    <p><code>build_faa.py</code> in this repository reads a CSV conversion of FAA's Excel export and
+      writes the files in <code>data/</code>. It exits non-zero on an empty read. FAA rebuilds its
+      export daily, so re-downloading and re-running picks up new strikes.</p>
+
+    <p class="caution" style="margin-top:26px">Built with AI assistance. Figures are computed from FAA's
+      export rather than transcribed, but check FAA's own search tool before publishing any number.</p>
+    <p><a class="back" href="index.html">&larr; Back to the database</a></p>
+  </div>
+</div>
+</body>
+</html>
