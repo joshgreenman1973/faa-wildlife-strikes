@@ -11,10 +11,10 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="house.css">
 <style>
-:root{--ink3:#7d8c5c}
+:root{--ink3:#2f6b6b}
 .pane{display:none}.pane.on{display:block}
-#map{height:min(64vh,600px);width:100%;background:#e8e3d5}
-.leaflet-container{font-family:var(--sans);font-size:12px;background:#e8e3d5}
+#map{height:min(64vh,600px);width:100%;background:#dfe3dc}
+.leaflet-container{font-family:var(--sans);font-size:12px;background:#dfe3dc}
 .sp{padding:11px 26px;border-bottom:1px solid var(--hair);cursor:pointer;display:grid;
   grid-template-columns:1fr auto;gap:10px 16px;align-items:baseline}
 .sp:hover{background:var(--paper2)}
@@ -37,14 +37,14 @@
 .altrow i{height:13px;display:block;background:var(--ink2c);mix-blend-mode:multiply;opacity:.85}
 .altrow u{text-decoration:none;font-family:var(--display);font-weight:600;font-size:.86rem;
   font-variant-numeric:tabular-nums;color:var(--ink2)}
-.altnote{font-size:.95rem;color:#403a30;max-width:64ch;margin:0 0 18px;line-height:1.55}
+.altnote{font-size:.95rem;color:#39403a;max-width:64ch;margin:0 0 18px;line-height:1.55}
 .rep{padding:12px 26px;border-bottom:1px solid var(--hair)}
 .rep .hd{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
 .rep .sp2{font-family:var(--display);font-weight:600;font-size:1.02rem}
 .rep .dt{font-size:var(--t-micro);letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink2)}
 .rep .mt{font-size:var(--t-micro);letter-spacing:.09em;text-transform:uppercase;font-weight:700;
   color:var(--ink2);margin-top:3px}
-.rep .rm{font-size:.96rem;line-height:1.5;margin-top:7px;color:#403a30;
+.rep .rm{font-size:.96rem;line-height:1.5;margin-top:7px;color:#39403a;
   border-left:3px solid var(--ink3);padding-left:11px}
 .badge{display:inline-block;padding:1px 7px;font-size:var(--t-micro);font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;background:var(--ink1);color:var(--paper);margin-left:7px}
@@ -62,23 +62,7 @@
   <div class="head">
     <!-- mark: a flock on a rising line, and the one that did not clear -->
     <div class="hmark" aria-hidden="true">
-      <svg viewBox="0 0 300 140">
-        <g stroke="#3f5d84" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".55">
-          <path d="M14 104 q10 -11 20 0"/><path d="M46 88 q10 -11 20 0"/>
-          <path d="M78 96 q10 -11 20 0"/><path d="M104 70 q10 -11 20 0"/>
-          <path d="M138 82 q10 -11 20 0"/><path d="M166 58 q10 -11 20 0"/>
-          <path d="M196 68 q10 -11 20 0"/><path d="M228 44 q10 -11 20 0"/>
-        </g>
-        <!-- flight path -->
-        <path d="M4 128 C 90 118, 190 74, 296 26" stroke="#7d8c5c" stroke-width="5"
-              fill="none" opacity=".5"/>
-        <!-- the impact -->
-        <g stroke="#b8503a" stroke-width="4.6" opacity=".9" stroke-linecap="round">
-          <path d="M252 40 l22 -16"/><path d="M252 40 l26 4"/><path d="M252 40 l14 22"/>
-          <path d="M252 40 l-8 -22"/><path d="M252 40 l-22 8"/>
-        </g>
-        <circle cx="252" cy="40" r="7" fill="#b8503a" opacity=".9"/>
-      </svg>
+      <img src="img/mark.png" alt="Abstract screenprint of a flock of birds rising across a sweeping flight path" width="640" height="357">
     </div>
     <h1>Struck</h1>
     <p class="sub">Every wildlife strike on an American aircraft that someone bothered to report since
@@ -90,6 +74,7 @@
       &middot; full export, rebuilt daily by FAA &middot; <a href="methodology.html">method</a></p>
   </div>
 
+  <div class="capline" id="capline"></div>
   <div class="counts" id="counts"></div>
 
   <div class="tabs" id="tabs">
@@ -170,16 +155,17 @@ const MON=['J','F','M','A','M','J','J','A','S','O','N','D'];
 let META,AGG,SP,AP,NOTABLE=null,MAP,LAYER,NBSET=new Set();
 
 Promise.all([
- fetch('data/meta.json').then(r=>r.json()),
- fetch('data/agg.json').then(r=>r.json()),
- fetch('data/species.json').then(r=>r.json()),
- fetch('data/airports.json').then(r=>r.json()),
+ fetch('data/meta.json',{cache:'no-cache'}).then(r=>r.json()),
+ fetch('data/agg.json',{cache:'no-cache'}).then(r=>r.json()),
+ fetch('data/species.json',{cache:'no-cache'}).then(r=>r.json()),
+ fetch('data/airports.json',{cache:'no-cache'}).then(r=>r.json()),
 ]).then(([m,a,s,p])=>{META=m;AGG=a;SP=s;AP=p;s.forEach(x=>{if(x.nb)NBSET.add(x.n)});init();})
  .catch(e=>{$('#list-sp').innerHTML='<div class="empty">Could not load data. '+esc(e.message)+'</div>';});
 
 function init(){
   $('#range').textContent=META.date_min+' – '+META.date_max;
   const nb=SP.filter(s=>s.nb);
+  $('#capline').innerHTML='Strikes reported to the FAA between <b>'+META.date_min+'</b> and <b>'+META.date_max+'</b> &middot; reporting is voluntary, so this counts reports, not strikes';
   $('#counts').innerHTML=[
     [nf(META.records),'Strikes'],
     [nf(META.species),'Species'],
@@ -260,8 +246,8 @@ function drawMap(rows){
   $('#c-map').textContent=nf(rows.length)+' located';
   rows.slice(0,1500).forEach(a=>{
     const r=Math.max(3,Math.sqrt(a.t/max)*22);
-    const m=L.circleMarker([a.lat,a.lon],{radius:r,color:'#221f1a',weight:.6,
-      fillColor:'#3f5d84',fillOpacity:.42});
+    const m=L.circleMarker([a.lat,a.lon],{radius:r,color:'#1c211c',weight:.6,
+      fillColor:'#4a6b52',fillOpacity:.42});
     m.bindTooltip(`<b>${esc(a.n)}</b><br>${nf(a.t)} strikes · ${nf(a.d)} damaging<br>Most struck: ${esc((a.top[0]||['—'])[0])}`,
       {direction:'top'});
     LAYER.addLayer(m);
@@ -283,7 +269,7 @@ function renderAltitude(){
 
 /* ---------- reports ---------- */
 function loadReports(){
-  fetch('data/notable.json').then(r=>r.json()).then(d=>{
+  fetch('data/notable.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
     NOTABLE=d;
     $('#rep-scope').textContent='Strikes that damaged, injured, cost money or were not birds';
     $('#q-rep').addEventListener('input',renderReports);

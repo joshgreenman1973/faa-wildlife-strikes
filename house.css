@@ -12,22 +12,30 @@
    - No display word plus italic accent word in a warm colour.
    - No emoji as iconography. No pastel pill badges.
    - Colour carries meaning only: category, series, state. Never decoration,
-     with the single exception of the overprint discs in the header.
+     with the single exception of the header mark.
    - Type sizes come from the scale below. Do not invent new ones.
    ============================================================ */
 
 :root{
-  --paper:#f4f0e6;
-  --paper2:#eae4d6;
-  --ink:#221f1a;
-  --ink2:#6b6455;
-  --hair:#d3cab4;
-  --hair2:#e2dac6;
+  /* Pale neutral stock with the faintest green cast. Deliberately NOT warm
+     cream with a terracotta accent — that combination is Anthropic's own
+     brand palette and reading as "made by a chatbot" is the one thing this
+     system must not do. The ground stays quiet; the inks carry the colour. */
+  --paper:#eceee9;
+  --paper2:#e1e4de;
+  --ink:#1b1e1c;
+  --ink2:#5c625d;
+  --hair:#c7ccc5;
+  --hair2:#d8dcd6;
 
-  /* three spot inks. --ink3 is the one a project may re-pick. */
-  --ink1:#b8503a;   /* clay  — primary category, active state */
-  --ink2c:#3f5d84;  /* slate — secondary category, bars */
-  --ink3:#c9a04c;   /* ochre — tertiary / accent */
+  /* Five spot inks, used semantically and never decoratively. A project may
+     re-pick --ink3 only. Enough hues that a page reads multicoloured rather
+     than tinted, but all held to the same low chroma so it stays calm. */
+  --ink1:#2d4a86;   /* indigo   — primary category, active state */
+  --ink2c:#4a6b52;  /* moss     — secondary category, bars */
+  --ink3:#8a4a6b;   /* plum     — tertiary / accent, project-overridable */
+  --ink4:#b07326;   /* amber    — emphasis, warnings, highlighted values */
+  --ink5:#2b6f75;   /* teal     — fourth category */
 
   --sans:'Karla',system-ui,-apple-system,sans-serif;
   --display:'Archivo',system-ui,sans-serif;
@@ -61,25 +69,28 @@ button{font-family:inherit}
 .strip a{color:var(--ink2);text-decoration:none;border-bottom:1px solid var(--hair)}
 .strip a:hover{color:var(--ink)}
 
-/* ---------- header, with a per-project overprint mark ----------
-   Every project draws its own SVG mark into .hmark. It is the one place
-   decoration is allowed, and it must say something about the subject:
-   shipping crates for import refusals, a flock and a burst for bird
-   strikes, contour rings for place names, umbrellas for lost property.
-   Marks overprint via multiply, in the project inks. Never a plain circle
-   used as generic ornament.                                            */
+/* ---------- header, with a per-project mark ----------
+   Every project has its own mark in .hmark, a risograph-style screenprint
+   generated for the subject and knocked out to transparency: contour lines
+   for place names, a flock crossing a flight path for bird strikes, struck
+   crates for import refusals, umbrellas for lost property. It is the one
+   place decoration is allowed, and it must say something about the subject.
+   Never a plain circle used as generic ornament.                        */
+/* The mark is taken out of flow and the header reserves room for it with
+   padding. Do not put it in the grid: a row-spanning item stretches the rows
+   and the title floats away from the paragraph beneath it. */
 .head{
-  padding:26px 26px 20px;position:relative;overflow:hidden;
-  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 28px;align-items:center;
+  position:relative;overflow:hidden;
+  padding:26px calc(clamp(150px,22vw,290px) + 52px) 20px 26px;
 }
-.head>*{grid-column:1;min-width:0}
 .hmark{
-  grid-column:2;grid-row:1 / -1;align-self:center;
-  width:clamp(150px,22vw,300px);pointer-events:none;
+  position:absolute;right:26px;top:26px;
+  width:clamp(150px,22vw,290px);pointer-events:none;
 }
-.hmark svg{width:100%;height:auto;max-height:140px;mix-blend-mode:multiply;overflow:visible}
+.hmark svg,.hmark img{width:100%;height:auto;max-height:150px;object-fit:contain;overflow:visible;display:block}
+.hmark svg{mix-blend-mode:multiply}
 @media(max-width:900px){
-  .head{grid-template-columns:1fr}
+  .head{padding-right:26px}
   .hmark{display:none}
 }
 h1{
@@ -87,14 +98,23 @@ h1{
   font-size:var(--t-h1);line-height:1.02;letter-spacing:-.02em;position:relative;z-index:2;
 }
 .sub{position:relative;z-index:2;margin:9px 0 0;max-width:64ch;
-  font-size:var(--t-body);line-height:1.55;color:#403a30}
+  font-size:var(--t-body);line-height:1.55;color:#333834}
 .src{position:relative;z-index:2;margin:13px 0 0;font-size:var(--t-small);
   letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--ink2)}
 .src a{color:var(--ink2)}
 
 /* ---------- counts: flat, small, never a card ----------
    Cells are equal width and equal height, so labels that wrap to two lines
-   do not knock the row out of alignment. Keep labels to three words.     */
+   do not knock the row out of alignment. Keep labels to three words.
+   Always precede the strip with .capline saying what period it covers —
+   a bare number with no period attached is not a fact.                   */
+.capline{
+  padding:9px 26px;border-top:1px solid var(--ink);background:var(--paper2);
+  font-size:var(--t-micro);letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;color:var(--ink2);
+}
+.capline b{color:var(--ink);font-weight:700}
+.capline + .counts{border-top:1px solid var(--hair)}
 .counts{display:flex;flex-wrap:wrap;border-top:1px solid var(--ink);border-bottom:1px solid var(--hair)}
 .counts div{
   flex:1 1 168px;padding:13px 20px 14px;border-right:1px solid var(--hair);
