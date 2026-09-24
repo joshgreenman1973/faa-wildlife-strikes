@@ -7,77 +7,111 @@
 <meta name="description" content="352,419 wildlife strikes reported to the Federal Aviation Administration since 1990, by species, airport, altitude and what the crew wrote down.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="house.css">
 <style>
-:root{--ink3:#2f6b6b}
+:root{--accent:var(--cobalt)}
 .pane{display:none}.pane.on{display:block}
-#map{height:min(64vh,600px);width:100%;background:#dfe3dc}
-.leaflet-container{font-family:var(--sans);font-size:12px;background:#dfe3dc}
-.sp{padding:11px 26px;border-bottom:1px solid var(--hair);cursor:pointer;display:grid;
+.head{padding-bottom:0}
+.fig canvas{width:100%;touch-action:pan-y}
+.heat{grid-template-columns:minmax(140px,1.7fr) repeat(12,minmax(0,1fr))}
+.heat .c{aspect-ratio:1.4}
+.heat .n i{display:inline-block;width:9px;height:9px;margin-right:7px}
+.ramp{display:flex;align-items:center;gap:6px;font-size:var(--t-micro);color:var(--fg2);margin-top:10px}
+.ramp i{width:22px;height:10px;display:inline-block}
+.panel canvas{width:100%}
+#map{height:min(64vh,600px);width:100%;background:var(--bg2)}
+.leaflet-container{font-family:var(--sans);font-size:13px;background:var(--bg2)}
+.leaflet-tooltip{background:var(--bg2);color:var(--fg);border:1px solid var(--line);border-radius:0;box-shadow:none;font-size:13px}
+.leaflet-tooltip-top:before{border-top-color:var(--line)}
+.leaflet-control-attribution{background:rgba(17,19,17,.8)!important;color:var(--fg2)}
+.leaflet-control-attribution a{color:var(--fg2)}
+.leaflet-bar,.leaflet-bar a{border-radius:0!important;box-shadow:none}
+.leaflet-bar a{background:var(--bg2);color:var(--fg);border-bottom-color:var(--line)}
+.leaflet-bar a:hover{background:var(--bg);color:var(--fg)}
+.leaflet-touch .leaflet-bar{border:1px solid var(--line)}
+.sp{padding:11px clamp(16px,4vw,48px);border-bottom:1px solid var(--line2);cursor:pointer;display:grid;
   grid-template-columns:1fr auto;gap:10px 16px;align-items:baseline}
-.sp:hover{background:var(--paper2)}
-.sp .nm{font-family:var(--display);font-weight:600;font-size:1.02rem;letter-spacing:-.012em}
-.sp .mt{font-size:var(--t-micro);letter-spacing:.09em;text-transform:uppercase;font-weight:700;
-  color:var(--ink2);margin-top:3px}
-.sp .ct{font-family:var(--display);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
-.sp .ct em{display:block;font-style:normal;font-size:var(--t-micro);letter-spacing:.09em;
-  text-transform:uppercase;color:var(--ink2);font-weight:700}
+.sp:hover{background:var(--bg2)}
+.sp .nm{font-family:var(--display);font-variation-settings:'wdth' 88;font-weight:600;font-size:var(--t-rec)}
+.sp .mt{font-size:var(--t-small);color:var(--fg2);margin-top:3px}
+.sp .ct{font-family:var(--display);font-variation-settings:'wdth' 88;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.sp .ct em{display:block;font-style:normal;font-family:var(--sans);font-size:var(--t-micro);color:var(--fg2);font-weight:500}
 .mo{display:flex;gap:2px;align-items:flex-end;height:20px;width:190px;margin-top:6px}
-.mo i{flex:1;background:var(--ink3);opacity:.85;min-height:1px}
+.mo i{flex:1;background:var(--accent);min-height:1px}
 .mo-wrap{grid-column:1;display:flex;align-items:flex-end;gap:9px}
-.mo-lab{font-size:var(--t-micro);letter-spacing:.09em;text-transform:uppercase;
-  font-weight:700;color:var(--ink2);padding-bottom:2px}
-/* altitude column — the signature view */
-.alt{padding:20px 26px 30px;max-width:900px}
-.altrow{display:grid;grid-template-columns:92px 1fr 80px;gap:12px;align-items:center;padding:2px 0}
-.altrow span{font-size:var(--t-micro);letter-spacing:.08em;text-transform:uppercase;font-weight:700;
-  color:var(--ink2);text-align:right;font-variant-numeric:tabular-nums}
-.altrow i{height:13px;display:block;background:var(--ink2c);mix-blend-mode:multiply;opacity:.85}
-.altrow u{text-decoration:none;font-family:var(--display);font-weight:600;font-size:.86rem;
-  font-variant-numeric:tabular-nums;color:var(--ink2)}
-.altnote{font-size:.95rem;color:#39403a;max-width:64ch;margin:0 0 18px;line-height:1.55}
-.rep{padding:12px 26px;border-bottom:1px solid var(--hair)}
+.mo-lab{font-size:var(--t-micro);color:var(--fg2);padding-bottom:1px}
+/* altitude column */
+.alt{padding:20px clamp(16px,4vw,48px) 30px;max-width:900px}
+.altrow{display:grid;grid-template-columns:118px 1fr 70px;gap:12px;align-items:center;padding:2px 0}
+.altrow span{font-size:var(--t-micro);color:var(--fg2);text-align:right;font-variant-numeric:tabular-nums}
+.altrow i{height:13px;display:block;background:var(--mint)}
+.altrow u{text-decoration:none;font-family:var(--display);font-weight:600;font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--fg2)}
+.altnote{font-size:15px;color:var(--fg2);max-width:64ch;margin:0 0 18px;line-height:1.55}
+.rep{padding:12px clamp(16px,4vw,48px);border-bottom:1px solid var(--line2)}
 .rep .hd{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
-.rep .sp2{font-family:var(--display);font-weight:600;font-size:1.02rem}
-.rep .dt{font-size:var(--t-micro);letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink2)}
-.rep .mt{font-size:var(--t-micro);letter-spacing:.09em;text-transform:uppercase;font-weight:700;
-  color:var(--ink2);margin-top:3px}
-.rep .rm{font-size:.96rem;line-height:1.5;margin-top:7px;color:#39403a;
-  border-left:3px solid var(--ink3);padding-left:11px}
-.badge{display:inline-block;padding:1px 7px;font-size:var(--t-micro);font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;background:var(--ink1);color:var(--paper);margin-left:7px}
-.loading{padding:34px 26px;color:var(--ink2)}
+.rep .sp2{font-family:var(--display);font-variation-settings:'wdth' 88;font-weight:600;font-size:var(--t-rec)}
+.rep .dt{font-size:var(--t-small);color:var(--fg2);font-variant-numeric:tabular-nums}
+.rep .mt{font-size:var(--t-small);color:var(--fg2);margin-top:3px}
+.rep .rm{font-size:.96rem;line-height:1.5;margin-top:7px;color:var(--fg);border-left:3px solid var(--accent);padding-left:11px}
+.badge{display:inline-block;font-family:var(--sans);font-size:var(--t-small);font-weight:700;margin-left:10px;color:var(--vermilion)}
+.badge.inj{color:var(--rose)}
+.loading{padding:34px clamp(16px,4vw,48px);color:var(--fg2)}
+@media(max-width:560px){.altrow{grid-template-columns:96px 1fr 56px;gap:8px}.mo{width:150px}}
 </style>
 </head>
 <body>
 <div class="sheet">
 
   <div class="strip">
-    <span>Federal Aviation Administration &middot; National Wildlife Strike Database</span>
+    <span>Federal Aviation Administration wildlife strike database</span>
     <span id="range">Since 1990</span>
   </div>
 
   <div class="head">
-    <!-- mark: a flock on a rising line, and the one that did not clear -->
-    <div class="hmark" aria-hidden="true">
-      <img src="img/mark.png" alt="Abstract screenprint of a flock of birds rising across a sweeping flight path" width="640" height="357">
-    </div>
     <h1>Struck</h1>
-    <p class="sub">Every wildlife strike on an American aircraft that someone bothered to report since
-      1990. Reporting is voluntary, so this is not everything that has been hit &mdash; it is everything
-      that got written down. When only a smear is left, the remains go to the Smithsonian's Feather
-      Identification Lab, which names the species from fragments. That is why a record can say
-      <b>Wilson's warbler at 32,000 feet</b>.</p>
-    <p class="src">Source: <a href="https://wildlife.faa.gov/" target="_blank" rel="noopener">FAA Wildlife Strike Database</a>
-      &middot; full export, rebuilt daily by FAA &middot; <a href="methodology.html">method</a></p>
+    <p class="finding" id="finding">In 2025 pilots and airports reported 24,459 wildlife strikes, about 67 a day.</p>
+    <p class="lede" id="lede">The database holds <b>352,419</b> reports since 1990, from <b>2,788</b> airports, naming
+      <b>975</b> species. Reporting is voluntary, so this counts what somebody wrote down, not everything
+      that got hit. When only a smear is left, the Smithsonian's Feather Identification Lab names the species
+      from the fragments, which is how a record can say Wilson's warbler at 32,000 feet. <b>12,494</b> of the
+      strikes involved something other than a bird. <b>22,157</b> damaged the aircraft; those with a reported
+      height are the dots below.</p>
+    <p class="src">Source: <a href="https://wildlife.faa.gov/" target="_blank" rel="noopener">Federal Aviation Administration wildlife strike database</a>,
+      full export, rebuilt daily by the agency &middot; <a href="methodology.html">How this was built</a></p>
   </div>
 
-  <div class="capline" id="capline"></div>
-  <div class="counts" id="counts"></div>
+  <div class="fig">
+    <div class="figcap"><span><b>Each dot is a strike that damaged the aircraft, by date and reported height.</b></span>
+      <span><span class="key"><i style="background:var(--cobalt)"></i>Damage</span><span class="key"><i style="background:var(--sun)"></i>Substantial damage or destroyed</span></span></div>
+    <canvas id="cv-dots" height="400" aria-label="Dot chart of damaging wildlife strikes by date and reported height"></canvas>
+    <div class="readout" id="ro-dots">Loading the strike records&hellip;</div>
+  </div>
 
-  <div class="tabs" id="tabs">
+  <section class="sec">
+    <div class="split">
+      <div><h3>Many more reports, somewhat more damage</h3>
+        <p class="aside" id="years-aside"></p></div>
+      <div class="pair">
+        <div class="panel"><h4>All reported strikes, per year</h4><canvas id="cv-y1"></canvas></div>
+        <div class="panel"><h4>Strikes that caused damage, per year</h4><canvas id="cv-y2"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-top:8px">
+    <div class="split">
+      <div><h3>When each bird hits</h3>
+        <p class="aside">Each row is one species' strikes spread across the calendar. Darker cells hold a bigger share of that species' year.</p>
+        <div id="heat"></div></div>
+      <div><h3>What hits aircraft</h3>
+        <p class="aside">The named species and groups with the most reported strikes. The colour matches the row in the calendar.</p>
+        <div class="list" id="toplist"></div></div>
+    </div>
+  </section>
+
+<div class="tabs" id="tabs">
     <button class="on" data-p="species">Species</button>
     <button data-p="map">Airports</button>
     <button data-p="alt">Altitude</button>
@@ -96,7 +130,7 @@
       </select>
       <button class="chip" id="chip-nb" aria-pressed="false">Not birds</button>
     </div>
-    <div class="colhead"><span>What hits aircraft</span><span id="c-sp"></span></div>
+    <div class="colhead"><span>Every species on record</span><span id="c-sp"></span></div>
     <div id="list-sp"></div>
   </div>
 
@@ -140,7 +174,7 @@
   </div>
 
   <div class="foot">
-    <p class="caution">Built with AI assistance from FAA's own export. Reporting is voluntary and
+    <p class="caution">Built with AI assistance from the Federal Aviation Administration's own export. Reporting is voluntary and
       counts are not a measure of risk at any airport. Remarks are quoted as filed, including typos.</p>
     <p><a href="methodology.html">How this was built, and what it leaves out &rarr;</a></p>
   </div>
@@ -151,34 +185,38 @@
 const $=s=>document.querySelector(s);
 const esc=s=>(s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nf=n=>Number(n).toLocaleString('en-US');
+let REP_STARTED=false;
 const MON=['J','F','M','A','M','J','J','A','S','O','N','D'];
 let META,AGG,SP,AP,NOTABLE=null,MAP,LAYER,NBSET=new Set();
+const NOTABLE_P=fetch('data/notable.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
 
 Promise.all([
  fetch('data/meta.json',{cache:'no-cache'}).then(r=>r.json()),
  fetch('data/agg.json',{cache:'no-cache'}).then(r=>r.json()),
  fetch('data/species.json',{cache:'no-cache'}).then(r=>r.json()),
  fetch('data/airports.json',{cache:'no-cache'}).then(r=>r.json()),
+ (document.fonts?document.fonts.ready:Promise.resolve()),
 ]).then(([m,a,s,p])=>{META=m;AGG=a;SP=s;AP=p;s.forEach(x=>{if(x.nb)NBSET.add(x.n)});init();})
  .catch(e=>{$('#list-sp').innerHTML='<div class="empty">Could not load data. '+esc(e.message)+'</div>';});
 
 function init(){
-  $('#range').textContent=META.date_min+' – '+META.date_max;
-  const nb=SP.filter(s=>s.nb);
-  $('#capline').innerHTML='Strikes reported to the FAA between <b>'+META.date_min+'</b> and <b>'+META.date_max+'</b> &middot; reporting is voluntary, so this counts reports, not strikes';
-  $('#counts').innerHTML=[
-    [nf(META.records),'Strikes'],
-    [nf(META.species),'Species'],
-    [nf(META.damaging),'Damaging'],
-    [nf(META.airports),'Airports'],
-    [nf(nb.reduce((t,s)=>t+s.t,0)),'Not birds'],
-  ].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join('');
+  $('#range').textContent=apDate(META.date_min)+', to '+apDate(META.date_max);
+  const nb=SP.filter(s=>s.nb), lastFull=String(+META.date_max.slice(0,4)-1), nLast=AGG.year[lastFull];
+  const leap=+lastFull%4===0?366:365;
+  $('#finding').textContent='In '+lastFull+' pilots and airports reported '+nf(nLast)+' wildlife strikes, about '+Math.round(nLast/leap)+' a day.';
+  $('#lede').innerHTML='The database holds <b>'+nf(META.records)+'</b> reports since 1990, from <b>'+nf(META.airports)+
+    '</b> airports, naming <b>'+nf(META.species)+'</b> species. Reporting is voluntary, so this counts what somebody wrote down, '+
+    'not everything that got hit. When only a smear is left, the Smithsonian\'s Feather Identification Lab names the species '+
+    'from the fragments, which is how a record can say Wilson\'s warbler at 32,000 feet. <b>'+nf(nb.reduce((t,s)=>t+s.t,0))+
+    '</b> of the strikes involved something other than a bird. <b>'+nf(META.damaging)+
+    '</b> damaged the aircraft; those with a reported height are the dots below.';
+  drawOpening();
 
   document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{
     document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
     document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p));
     if(b.dataset.p==='map'){ ensureMap(); }
-    if(b.dataset.p==='reports' && !NOTABLE) loadReports();
+    if(b.dataset.p==='reports' && !REP_STARTED){ REP_STARTED=true; loadReports(); }
   }));
   $('#q-sp').addEventListener('input',renderSpecies);
   $('#sort-sp').addEventListener('change',renderSpecies);
@@ -189,6 +227,89 @@ function init(){
   $('#q-ap').addEventListener('input',renderAirports);
   $('#sort-ap').addEventListener('change',renderAirports);
   renderSpecies(); renderAirports(); renderAltitude();
+}
+
+/* ---------- opening graphics ---------- */
+const INK=['cobalt','vermilion','sun','mint','rose','cyan','orange','lilac'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const APMON=['Jan.','Feb.','March','April','May','June','July','Aug.','Sept.','Oct.','Nov.','Dec.'];
+function apDate(iso){const [y,m,d]=iso.split('-').map(Number);return APMON[m-1]+' '+d+', '+y}
+function tok(el){const st=getComputedStyle(el),g=n=>st.getPropertyValue('--'+n).trim();
+  const o={bg:g('bg'),fg:g('fg'),fg2:g('fg2'),grid:g('grid'),blend:g('blend')==='screen'?'screen':'multiply'};INK.forEach(k=>o[k]=g(k));return o}
+function sizeCanvas(cv,h){const r=cv.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.round(r.width*dpr);cv.height=Math.round(h*dpr);cv.style.height=h+'px';const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return {ctx,w:r.width,h}}
+function hexRgb(h){h=h.replace('#','');return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16))}
+function mix(a,b,t){const A=hexRgb(a),B=hexRgb(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+
+/* each damaging strike with a reported height: x = years since 1990 x 100, y = feet, sev 1 = substantial or destroyed */
+let PTS=null,X1=3670;const HMAX=12000;
+function xOf(iso){const y=+iso.slice(0,4),t0=Date.UTC(y,0,1),t1=Date.UTC(y+1,0,1),t=Date.UTC(y,+iso.slice(5,7)-1,+iso.slice(8,10));
+  return (y-1990)*100+Math.min(99,Math.floor((t-t0)/(t1-t0)*100))}
+function drawDots(){
+  const cv=$('#cv-dots'),ro=$('#ro-dots'),T=tok(cv);
+  const {ctx,w,h}=sizeCanvas(cv,cv.parentElement.clientWidth<560?300:400);const narrow=w<560;
+  const L=narrow?44:58,R=10,Tp=14,B=26,pw=w-L-R,ph=h-Tp-B,lastY=+META.date_max.slice(0,4);
+  const xs=v=>L+v/X1*pw, ys=hh=>Tp+ph-Math.sqrt(Math.min(hh,HMAX)/HMAX)*(ph-22)-4;
+  ctx.fillStyle=T.bg;ctx.fillRect(0,0,w,h);
+  ctx.font=(narrow?'11px':'12.5px')+' Karla, sans-serif';ctx.fillStyle=T.fg2;ctx.textBaseline='middle';ctx.textAlign='right';
+  [[0,'ground'],[500,'500 ft'],[2000,'2,000'],[5000,'5,000'],[12000,'12,000+']].forEach(([v,t])=>{const y=ys(v);
+    ctx.strokeStyle=T.grid;ctx.beginPath();ctx.moveTo(L,y+.5);ctx.lineTo(w-R,y+.5);ctx.stroke();ctx.fillText(t,L-6,y)});
+  ctx.textAlign='center';ctx.textBaseline='alphabetic';for(let yr=1990;yr<=lastY;yr+=narrow?10:5)ctx.fillText(yr,xs((yr-1990)*100),h-7);
+  if(!PTS)return;
+  ctx.globalCompositeOperation=T.blend;let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;const r=narrow?1.3:1.6;
+  [[0,T.cobalt,T.blend==='screen'?.75:.4],[1,T.sun,T.blend==='screen'?.8:.9]].forEach(([sev,c,a])=>{ctx.fillStyle=c;ctx.globalAlpha=a;
+    for(const p of PTS){if(p[2]!==sev)continue;const y=p[1]===0?ys(0)-rnd()*14:ys(p[1])+(rnd()-.5)*7;const sz=r*(sev?1.4:1);ctx.fillRect(xs(p[0])-sz/2,y-sz/2,sz,sz)}});
+  ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+  const allH=PTS.map(p=>p[1]),byYear={};PTS.forEach(p=>{const y=1990+Math.floor(p[0]/100);(byYear[y]=byYear[y]||[]).push(p[1])});
+  const atOrAbove=(arr,hh)=>arr.reduce((c,v)=>c+(v>=hh),0);
+  const pct=f=>Math.round(allH.filter(f).length/allH.length*100);
+  const def='Most damage happens low: '+pct(v=>v===0)+' percent of these strikes were on the ground, and '+pct(v=>v<3000)+' percent below 3,000 feet.';
+  const img=ctx.getImageData(0,0,cv.width,cv.height);ro.innerHTML=def;
+  cv.onpointermove=ev=>{const b=cv.getBoundingClientRect(),mx=ev.clientX-b.left,my=ev.clientY-b.top;ctx.putImageData(img,0,0);
+    if(mx<L||mx>w-R||my<Tp||my>h-B){ro.innerHTML=def;return}
+    const f=Math.max(0,(Tp+ph-4-my)/(ph-22)),hh=Math.min(HMAX,Math.round(f*f*HMAX/100)*100),yr=Math.min(lastY,1990+Math.floor((mx-L)/pw*X1/100));
+    ctx.strokeStyle=T.fg;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(L,ys(hh)+.5);ctx.lineTo(w-R,ys(hh)+.5);ctx.stroke();
+    ctx.globalAlpha=.14;ctx.fillStyle=T.fg;ctx.fillRect(xs((yr-1990)*100),Tp,pw/(X1/100),ph);ctx.globalAlpha=1;
+    const hl=hh===0?'At any height':'At or above '+nf(hh)+' feet';
+    ro.innerHTML=`${hl}: <b>${nf(atOrAbove(allH,hh))}</b> damaging strikes since 1990, <b>${nf(atOrAbove(byYear[yr]||[],hh))}</b> of them in ${yr}${yr===lastY?' so far':''}.`};
+  cv.onpointerleave=()=>{ctx.putImageData(img,0,0);ro.innerHTML=def};
+}
+function drawYears(cv,series,color,T){
+  const {ctx,w,h}=sizeCanvas(cv,170);const L=6,R=52,Tp=16,B=22,pw=w-L-R,ph=h-Tp-B;
+  const last=META.date_max.slice(0,4);const ks=Object.keys(series).filter(k=>k<last).sort();const vals=ks.map(k=>series[k]);const mx=Math.max(...vals)*1.08;
+  const xs=i=>L+i/(vals.length-1)*pw,ys=v=>Tp+ph-v/mx*ph;
+  ctx.fillStyle=T.bg;ctx.fillRect(0,0,w,h);ctx.strokeStyle=T.grid;ctx.beginPath();ctx.moveTo(L,Tp+ph+.5);ctx.lineTo(L+pw,Tp+ph+.5);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(xs(0),Tp+ph);vals.forEach((v,i)=>ctx.lineTo(xs(i),ys(v)));ctx.lineTo(xs(vals.length-1),Tp+ph);ctx.closePath();
+  ctx.globalAlpha=.28;ctx.fillStyle=color;ctx.fill();ctx.globalAlpha=1;
+  ctx.beginPath();vals.forEach((v,i)=>i?ctx.lineTo(xs(i),ys(v)):ctx.moveTo(xs(i),ys(v)));ctx.strokeStyle=color;ctx.lineWidth=2.2;ctx.stroke();
+  const e=vals.length-1;ctx.fillStyle=color;ctx.beginPath();ctx.arc(xs(e),ys(vals[e]),3.5,0,7);ctx.fill();
+  ctx.font='600 13px Karla, sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=T.fg;ctx.fillText(nf(vals[e]),xs(e)+7,ys(vals[e]));
+  ctx.fillStyle=T.fg2;ctx.font='12px Karla, sans-serif';ctx.fillText(nf(vals[0]),xs(0),ys(vals[0])-11);
+  ctx.textBaseline='alphabetic';ctx.fillText(ks[0],L,h-5);ctx.textAlign='right';ctx.fillText(ks[e],L+pw,h-5);
+}
+function topSpecies(){return [...SP].filter(x=>!/^unknown/i.test(x.n)).sort((a,b)=>b.t-a.t).slice(0,7)}
+function drawModules(){
+  const T=tok(document.body),last=String(+META.date_max.slice(0,4)-1);
+  drawYears($('#cv-y1'),AGG.year,T.cobalt,T);drawYears($('#cv-y2'),AGG.year_dmg,T.vermilion,T);
+  const top=topSpecies();
+  const rows=top.map((x,i)=>{const t=x.mo.reduce((a,b)=>a+b,0);return {n:x.n,ink:INK[i%8],sh:x.mo.map(v=>v/t)}});
+  const mx=Math.max(...rows.flatMap(r=>r.sh));
+  let hg='<div class="heat" role="img" aria-label="Share of each species\' strikes by month"><span></span>'+'JFMAMJJASOND'.split('').map(m=>`<span class="h">${m}</span>`).join('');
+  rows.forEach(r=>{hg+=`<span class="n"><i style="background:var(--${r.ink})"></i>${esc(r.n)}</span>`+r.sh.map((v,i)=>`<i class="c" data-v="${v/mx}" title="${MONTHS[i]}: ${Math.round(v*100)} percent"></i>`).join('')});
+  $('#heat').innerHTML=hg+'</div><div class="ramp">Smaller share <i data-v=".05"></i><i data-v=".3"></i><i data-v=".55"></i><i data-v=".8"></i><i data-v="1"></i> larger share</div>';
+  $('#heat').querySelectorAll('[data-v]').forEach(el=>{el.style.background=mix(T.bg,T.cobalt,.08+.92*Math.pow(+el.dataset.v,.85))});
+  $('#toplist').innerHTML=top.map((x,i)=>`<div class="row"><span class="sw" style="background:var(--${INK[i%8]})"></span><div><span class="nm">${esc(x.n)}</span><span class="sub">${nf(x.d)} damaging, most in ${MONTHS[x.mo.indexOf(Math.max(...x.mo))]}</span></div><span class="num">${nf(x.t)}</span></div>`).join('');
+}
+function drawOpening(){
+  const last=String(+META.date_max.slice(0,4)-1);
+  $('#years-aside').textContent='Reports went from '+nf(AGG.year['1990'])+' in 1990 to '+nf(AGG.year[last])+' in '+last+
+    '. Strikes that damaged the aircraft went from '+nf(AGG.year_dmg['1990'])+' to '+nf(AGG.year_dmg[last])+
+    '. Each chart has its own scale, so read the shapes, not the heights against each other.';
+  X1=xOf(META.date_max)+10;
+  drawDots();drawModules();
+  NOTABLE_P.then(d=>{PTS=d.filter(r=>r.dmg&&r.h!=null&&r.d).map(r=>[xOf(r.d),r.h,(r.lvl==='S'||r.lvl==='D')?1:0]);drawDots()})
+    .catch(()=>{$('#ro-dots').textContent='Could not load the strike records for this chart.'});
+  let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{drawDots();drawModules()},150)});
 }
 
 /* ---------- species ---------- */
@@ -209,9 +330,10 @@ function renderSpecies(){
     const bits=[x.sz||null, x.mh!=null?('median '+nf(x.mh)+' ft'):null,
                 x.mx?('highest '+nf(x.mx)+' ft'):null, x.d?(nf(x.d)+' damaging'):null,
                 x.nb?'not a bird':null].filter(Boolean).join(' · ');
+    const bitsC=bits.charAt(0).toUpperCase()+bits.slice(1);
     const peak=MON[x.mo.indexOf(Math.max(...x.mo))];
     const PK=['January','February','March','April','May','June','July','August','September','October','November','December'][x.mo.indexOf(Math.max(...x.mo))];
-    return `<div class="sp"><div><span class="nm">${esc(x.n)}</span><div class="mt">${esc(bits)}</div></div>
+    return `<div class="sp"><div><span class="nm">${esc(x.n)}</span><div class="mt">${esc(bitsC)}</div></div>
       <div class="ct">${nf(x.t)}<em>strikes</em></div>
       <div class="mo-wrap"><div class="mo">${bars}</div><div class="mo-lab">peaks in ${PK}</div></div></div>`;
   }).join('') : '<div class="empty">No species matches that.</div>';
@@ -226,14 +348,14 @@ function renderAirports(){
   $('#c-ap').textContent=nf(rows.length)+' airports';
   $('#list-ap').innerHTML=rows.slice(0,300).map(a=>
     `<div class="sp"><div><span class="nm">${esc(a.n)}</span>
-      <div class="mt">${esc(a.c)} ${a.s?'· '+esc(a.s):''} · top: ${esc((a.top[0]||['—'])[0])}</div></div>
+      <div class="mt">${esc(a.c)} ${a.s?'· '+esc(a.s):''} · most struck: ${esc((a.top[0]||['—'])[0])}</div></div>
       <div class="ct">${nf(a.t)}<em>${nf(a.d)} damaging</em></div></div>`).join('');
   if(MAP) drawMap(rows.filter(a=>a.lat!=null));
 }
 function ensureMap(){
   if(MAP){ setTimeout(()=>MAP.invalidateSize(),60); return; }
   MAP=L.map('map',{scrollWheelZoom:true}).setView([39.5,-98.5],4);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_2r82_1_ae4e70b6166057bc41b89638',{
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_2r82_1_ae4e70b6166057bc41b89638',{
     maxZoom:14, attribution:'&copy; OpenStreetMap, &copy; CARTO'}).addTo(MAP);
   LAYER=L.layerGroup().addTo(MAP);
   drawMap(locatable());
@@ -242,12 +364,12 @@ function ensureMap(){
 function drawMap(rows){
   if(!LAYER) return;
   LAYER.clearLayers();
-  const max=Math.max(...rows.map(a=>a.t),1);
+  const max=Math.max(...rows.map(a=>a.t),1), T=tok(document.body);
   $('#c-map').textContent=nf(rows.length)+' located';
   rows.slice(0,1500).forEach(a=>{
     const r=Math.max(3,Math.sqrt(a.t/max)*22);
-    const m=L.circleMarker([a.lat,a.lon],{radius:r,color:'#1c211c',weight:.6,
-      fillColor:'#4a6b52',fillOpacity:.42});
+    const m=L.circleMarker([a.lat,a.lon],{radius:r,color:T.cobalt,weight:.8,opacity:.9,
+      fillColor:T.cobalt,fillOpacity:.35});
     m.bindTooltip(`<b>${esc(a.n)}</b><br>${nf(a.t)} strikes · ${nf(a.d)} damaging<br>Most struck: ${esc((a.top[0]||['—'])[0])}`,
       {direction:'top'});
     LAYER.addLayer(m);
@@ -269,7 +391,7 @@ function renderAltitude(){
 
 /* ---------- reports ---------- */
 function loadReports(){
-  fetch('data/notable.json',{cache:'no-cache'}).then(r=>r.json()).then(d=>{
+  NOTABLE_P.then(d=>{
     NOTABLE=d;
     $('#rep-scope').textContent='Strikes that damaged, injured, cost money or were not birds';
     $('#q-rep').addEventListener('input',renderReports);
@@ -289,7 +411,7 @@ function renderReports(){
   $('#c-rep').textContent=nf(rows.length)+' reports';
   const show=rows.slice(0,300);
   $('#list-rep').innerHTML=(rows.length?show.map(r=>`<div class="rep">
-    <div class="hd"><span class="sp2">${esc(r.sp||'Unidentified')}${r.dmg?'<span class="badge">Damage</span>':''}${r.inj?'<span class="badge">Injury</span>':''}</span>
+    <div class="hd"><span class="sp2">${esc(r.sp||'Unidentified')}${r.dmg?'<span class="badge">Damage</span>':''}${r.inj?'<span class="badge inj">Injury</span>':''}</span>
       <span class="dt">${esc(r.d||'')}</span></div>
     <div class="mt">${esc([r.apn,r.st,r.ac,r.ph,(r.h!=null?nf(r.h)+' ft':null)].filter(Boolean).join(' · '))}</div>
     ${r.rem?`<div class="rm">${esc(r.rem)}</div>`:''}</div>`).join('')
