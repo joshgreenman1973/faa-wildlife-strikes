@@ -265,6 +265,11 @@ def main():
         "species.json": dump("species.json", species_out),
         "packed.json": dump("packed.json", packed),
         "notable.json": dump("notable.json", notable),
+        # Small file for the opening dot chart: damaging strikes with a height,
+        # as [date, height, 1 if substantial damage or destroyed else 0].
+        "damaging_heights.json": dump("damaging_heights.json",
+            [[r["d"], r["h"], 1 if r.get("lvl") in ("S", "D") else 0]
+             for r in notable if r.get("dmg") and r.get("h") is not None and r.get("d")]),
     }
     print("\nrows=%d  airports=%d  species=%d  notable=%d  damaging=%d"
           % (n, len(airports_out), len(species_out), len(notable), meta["damaging"]),

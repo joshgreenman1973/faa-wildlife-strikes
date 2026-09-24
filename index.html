@@ -188,7 +188,9 @@ const nf=n=>Number(n).toLocaleString('en-US');
 let REP_STARTED=false;
 const MON=['J','F','M','A','M','J','J','A','S','O','N','D'];
 let META,AGG,SP,AP,NOTABLE=null,MAP,LAYER,NBSET=new Set();
-const NOTABLE_P=fetch('data/notable.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+let NOTABLE_PROM=null;
+const notableP=()=>NOTABLE_PROM||(NOTABLE_PROM=fetch('data/notable.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}));
+const DMG_P=fetch('data/damaging_heights.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
 
 Promise.all([
  fetch('data/meta.json',{cache:'no-cache'}).then(r=>r.json()),
@@ -307,7 +309,7 @@ function drawOpening(){
     '. Each chart has its own scale, so read the shapes, not the heights against each other.';
   X1=xOf(META.date_max)+10;
   drawDots();drawModules();
-  NOTABLE_P.then(d=>{PTS=d.filter(r=>r.dmg&&r.h!=null&&r.d).map(r=>[xOf(r.d),r.h,(r.lvl==='S'||r.lvl==='D')?1:0]);drawDots()})
+  DMG_P.then(d=>{PTS=d.map(r=>[xOf(r[0]),r[1],r[2]]);drawDots()})
     .catch(()=>{$('#ro-dots').textContent='Could not load the strike records for this chart.'});
   let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{drawDots();drawModules()},150)});
 }
@@ -391,7 +393,7 @@ function renderAltitude(){
 
 /* ---------- reports ---------- */
 function loadReports(){
-  NOTABLE_P.then(d=>{
+  notableP().then(d=>{
     NOTABLE=d;
     $('#rep-scope').textContent='Strikes that damaged, injured, cost money or were not birds';
     $('#q-rep').addEventListener('input',renderReports);
