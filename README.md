@@ -1,6 +1,6 @@
 # Struck
 
-Every wildlife strike on an American aircraft reported to the FAA since 1990 — 352,419 records,
+Every wildlife strike on an American aircraft reported to the Federal Aviation Administration (FAA) since 1990 — 352,419 records,
 975 species, 2,788 airports — searchable by species, airport, altitude and the crew's own remarks.
 
 Reporting is voluntary, so this is a census of *reports*, not of strikes. See
