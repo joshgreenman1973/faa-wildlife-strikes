@@ -7,7 +7,7 @@
 <meta name="description" content="352,419 wildlife strikes reported to the Federal Aviation Administration since 1990, by species, airport, altitude and what the crew wrote down.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="house.css">
 <style>
@@ -34,9 +34,9 @@
 .sp{padding:11px clamp(16px,4vw,48px);border-bottom:1px solid var(--line2);cursor:pointer;display:grid;
   grid-template-columns:1fr auto;gap:10px 16px;align-items:baseline}
 .sp:hover{background:var(--bg2)}
-.sp .nm{font-family:var(--display);font-variation-settings:'wdth' 88;font-weight:600;font-size:var(--t-rec)}
+.sp .nm{font-family:var(--display);font-weight:600;font-size:var(--t-rec)}
 .sp .mt{font-size:var(--t-small);color:var(--fg2);margin-top:3px}
-.sp .ct{font-family:var(--display);font-variation-settings:'wdth' 88;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.sp .ct{font-family:var(--display);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
 .sp .ct em{display:block;font-style:normal;font-family:var(--sans);font-size:var(--t-micro);color:var(--fg2);font-weight:500}
 .mo{display:flex;gap:2px;align-items:flex-end;height:20px;width:190px;margin-top:6px}
 .mo i{flex:1;background:var(--accent);min-height:1px}
@@ -51,7 +51,7 @@
 .altnote{font-size:15px;color:var(--fg2);max-width:64ch;margin:0 0 18px;line-height:1.55}
 .rep{padding:12px clamp(16px,4vw,48px);border-bottom:1px solid var(--line2)}
 .rep .hd{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
-.rep .sp2{font-family:var(--display);font-variation-settings:'wdth' 88;font-weight:600;font-size:var(--t-rec)}
+.rep .sp2{font-family:var(--display);font-weight:600;font-size:var(--t-rec)}
 .rep .dt{font-size:var(--t-small);color:var(--fg2);font-variant-numeric:tabular-nums}
 .rep .mt{font-size:var(--t-small);color:var(--fg2);margin-top:3px}
 .rep .rm{font-size:.96rem;line-height:1.5;margin-top:7px;color:var(--fg);border-left:3px solid var(--accent);padding-left:11px}
@@ -252,7 +252,7 @@ function drawDots(){
   const L=narrow?44:58,R=10,Tp=14,B=26,pw=w-L-R,ph=h-Tp-B,lastY=+META.date_max.slice(0,4);
   const xs=v=>L+v/X1*pw, ys=hh=>Tp+ph-Math.sqrt(Math.min(hh,HMAX)/HMAX)*(ph-22)-4;
   ctx.fillStyle=T.bg;ctx.fillRect(0,0,w,h);
-  ctx.font=(narrow?'11px':'12.5px')+' Karla, sans-serif';ctx.fillStyle=T.fg2;ctx.textBaseline='middle';ctx.textAlign='right';
+  ctx.font=(narrow?'11px':'12.5px')+' "Helvetica Neue", Helvetica, Arial, sans-serif';ctx.fillStyle=T.fg2;ctx.textBaseline='middle';ctx.textAlign='right';
   [[0,'ground'],[500,'500 ft'],[2000,'2,000'],[5000,'5,000'],[12000,'12,000+']].forEach(([v,t])=>{const y=ys(v);
     ctx.strokeStyle=T.grid;ctx.beginPath();ctx.moveTo(L,y+.5);ctx.lineTo(w-R,y+.5);ctx.stroke();ctx.fillText(t,L-6,y)});
   ctx.textAlign='center';ctx.textBaseline='alphabetic';for(let yr=1990;yr<=lastY;yr+=narrow?10:5)ctx.fillText(yr,xs((yr-1990)*100),h-7);
@@ -284,8 +284,8 @@ function drawYears(cv,series,color,T){
   ctx.globalAlpha=.28;ctx.fillStyle=color;ctx.fill();ctx.globalAlpha=1;
   ctx.beginPath();vals.forEach((v,i)=>i?ctx.lineTo(xs(i),ys(v)):ctx.moveTo(xs(i),ys(v)));ctx.strokeStyle=color;ctx.lineWidth=2.2;ctx.stroke();
   const e=vals.length-1;ctx.fillStyle=color;ctx.beginPath();ctx.arc(xs(e),ys(vals[e]),3.5,0,7);ctx.fill();
-  ctx.font='600 13px Karla, sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=T.fg;ctx.fillText(nf(vals[e]),xs(e)+7,ys(vals[e]));
-  ctx.fillStyle=T.fg2;ctx.font='12px Karla, sans-serif';ctx.fillText(nf(vals[0]),xs(0),ys(vals[0])-11);
+  ctx.font='600 13px "Helvetica Neue", Helvetica, Arial, sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=T.fg;ctx.fillText(nf(vals[e]),xs(e)+7,ys(vals[e]));
+  ctx.fillStyle=T.fg2;ctx.font='12px "Helvetica Neue", Helvetica, Arial, sans-serif';ctx.fillText(nf(vals[0]),xs(0),ys(vals[0])-11);
   ctx.textBaseline='alphabetic';ctx.fillText(ks[0],L,h-5);ctx.textAlign='right';ctx.fillText(ks[e],L+pw,h-5);
 }
 function topSpecies(){return [...SP].filter(x=>!/^unknown/i.test(x.n)).sort((a,b)=>b.t-a.t).slice(0,7)}
